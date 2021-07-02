@@ -1,10 +1,9 @@
 
 import 'package:hive/hive.dart';
-part 'OrderDetails.g.dart';
+part '../services/OrderDetails.g.dart';
 
- 
- 
-@HiveType(typeId: 0)
+  
+@HiveType(typeId: 1) 
 class OrderDetails{
  
   @HiveField(0)

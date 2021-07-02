@@ -1,19 +1,24 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'OrdersPage.dart';
+import 'views/OrdersPage.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
-import 'CustomerDetails.dart';
-
-String username = 'test';
-String password = 'password';
- 
+import 'models/CustomerDetails.dart';
+import 'models/UsersDetails.dart';
+import 'models/OrderDetails.dart';
+import 'models/CheckListDetails.dart';
 
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   Directory directory = await pathProvider.getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(CustomerDetailsAdapter());
+  Hive.registerAdapter(UsersDetailsAdapter());
+  Hive.registerAdapter(OrderDetailsAdapter());
+  Hive.registerAdapter(CheckListDetailsAdapter());
+
+
   runApp(MyApp());
 }
 
@@ -29,7 +34,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: const MaterialColor(
         0xFFFFFFFF,
         const <int, Color>{
-          50: const Color(0xFFFFFFFF),
+          50:  const Color(0xFFFFFFFF),
           100: const Color(0xFFFFFFFF),
           200: const Color(0xFFFFFFFF),
           300: const Color(0xFFFFFFFF),
@@ -44,9 +49,7 @@ class MyApp extends StatelessWidget {
           ),
       home: MyHomePage(title: 'Mkart'),
       routes: <String, WidgetBuilder>{
-        './pages/OrdersPage.dart': (BuildContext context) => new OrdersPage(
-              username: username,
-            ),
+        './pages/OrdersPage.dart': (BuildContext context) => new OrdersPage(),
       },
     );
   }
@@ -61,12 +64,65 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   final _username = TextEditingController();
   final _password = TextEditingController();
+
   String msg = '';
+  String username = "test";
+  String password = "password";
+    
+  List<UsersDetails> listuserdetails = []; 
 
   bool _validateuser = false, _validatepassword = false;
   bool _showPassword = false;
+
+  void adduser() async {
+
+    UsersDetails useradd =
+        new UsersDetails(userName: "test", password: 'password');
+
+    var userbox = await Hive.openBox<UsersDetails>("userdetails");
+    userbox.add(useradd);
+    listuserdetails = userbox.values.toList();
+ 
+    setState(() {
+      username = listuserdetails[0].userName;
+      password = listuserdetails[0].password;  
+      print("setting username / password "+username+"  "+password);
+    });
+  }
+
+  checkLoginStatus() async {
+
+    final userbox = await Hive.openBox<UsersDetails>("userdetails");
+
+    listuserdetails = userbox.values.toList();
+
+    print("checking login status"+listuserdetails.length.toString());
+    
+    if(listuserdetails.length.toInt() > 0)
+     {
+     Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => OrdersPage(
+                                  username: "username",
+                                ),
+                                settings: RouteSettings(arguments: username),
+                              ),
+                              (Route<dynamic> route) => false);
+     }
+     else {
+       print("You Need to login");
+     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+    adduser();
+  }
 
   @override
   void dispose() {
@@ -77,13 +133,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       
       body: Center(
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center, 
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
-            
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(28.0),
@@ -93,13 +147,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(48, 10, 48, 10),
                 child: TextField(
-                  
                   controller: _username,
                   decoration: InputDecoration(
                     focusedBorder: new OutlineInputBorder(
-                    borderSide: new BorderSide(color: Colors.teal)),
-                   // labelText: 'Username',
-                    
+                        borderSide: new BorderSide(color: Colors.teal)),
+                    // labelText: 'Username',
+
                     hintText: "Username",
                     errorText:
                         _validateuser ? 'Username must not be empty' : null,
@@ -117,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   decoration: InputDecoration(
                     hintText: 'password',
                     focusedBorder: new OutlineInputBorder(
-                    borderSide: new BorderSide(color: Colors.teal)),
+                        borderSide: new BorderSide(color: Colors.teal)),
                     errorText:
                         _validatepassword ? 'Password must not be empty' : null,
                     contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -139,7 +192,6 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(48, 10, 48, 10),
                 child: Container(
-                  
                   width: MediaQuery.of(context).size.width,
                   child: TextButton(
                     child: Text("Login",
@@ -164,19 +216,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         _password.text.isEmpty
                             ? _validatepassword = true
                             : _validatepassword = false;
-                        
                       });
                       if (!_validateuser && !_validatepassword) {
-                        
                         if ((username == _username.text) &&
                             (password == _password.text)) {
+                          adduser();
                           Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                  builder: (BuildContext context) => OrdersPage(
-                                        username: "username",
-                                      ),
-                                  settings:   RouteSettings(arguments: username),  
-                                      ),
+                                builder: (BuildContext context) => OrdersPage(
+                                  username: "username",
+                                ),
+                                settings: RouteSettings(arguments: username),
+                              ),
                               (Route<dynamic> route) => false);
                         } else {
                           setState(() {
@@ -194,7 +245,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              
             ],
           ),
         ),

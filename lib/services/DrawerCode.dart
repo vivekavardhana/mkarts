@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import './OrdersPage2.dart';
+import '../views/OrdersPage2.dart';
 import 'package:mkart/main.dart';
 import 'package:avatars/avatars.dart';
 
@@ -88,9 +88,9 @@ class DrawerCode extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => OrdersPage2(
-                                username: username,
+                                username: "username",
                               ),
-                          settings:  RouteSettings(arguments: username),      
+                          settings:  RouteSettings(arguments: "username"),      
                               ));
                 },
               ),

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'DrawerCode.dart';
-import 'OrdersPage3.dart';
-import 'CustomerDetails.dart';
 import 'package:hive/hive.dart';
+
+import '../services/DrawerCode.dart';
+import 'OrdersPage3.dart';
+import '../models/CustomerDetails.dart';
+import '../models/OrderDetails.dart';
+
 
 class OrdersPage2 extends StatefulWidget {
   OrdersPage2({this.username = ""});
@@ -13,7 +16,9 @@ class OrdersPage2 extends StatefulWidget {
 }
 
 class _OrdersPage2State extends State<OrdersPage2> {
+
   List<CustomerDetails> listcustomerdetails = [];
+  List<OrderDetails> listorderdetails = [];
 
   Future<bool> _onBackPressed() {
     return showDialog(
@@ -37,6 +42,15 @@ class _OrdersPage2State extends State<OrdersPage2> {
         false;
   }
 
+  void addorders() async{
+    OrderDetails order1 = new OrderDetails(orderno: '11', orderamount: '1111');
+    OrderDetails order2 = new OrderDetails(orderno: '22', orderamount: '2222');
+    
+    var orderbox = await Hive.openBox<OrderDetails>("orderdetails");
+
+    orderbox.add(order1);
+    orderbox.add(order2);
+  }
   void addcustomer() async {
     CustomerDetails addCD = new CustomerDetails(
         customerName: "Customer1",
@@ -54,21 +68,30 @@ class _OrdersPage2State extends State<OrdersPage2> {
     abox.add(addCD);
     abox.add(addCDE);
   }
-
-  void getEmployees() async {
+  void getOrders() async {
+    final orderbox = await Hive.openBox<OrderDetails>("orderdetails");
+    orderbox.clear();
+    setState(() {
+      listorderdetails = orderbox.values.toList();
+    });
+  }
+  void getCustomers() async {
     final abox = await Hive.openBox<CustomerDetails>("customerdetails");
     abox.clear();
     setState(() {
       listcustomerdetails = abox.values.toList();
-      //print(listcustomerdetails.length.toInt());
     });
   }
 
   @override
   void initState() {
     listcustomerdetails.clear();
+    
     addcustomer();
-    getEmployees();
+    addorders();
+    getCustomers();
+    getOrders();
+
     super.initState();
   }
 

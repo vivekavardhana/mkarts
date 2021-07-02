@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'CustomerDetails.dart';
+part of '../models/CustomerDetails.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -8,7 +8,7 @@ part of 'CustomerDetails.dart';
 
 class CustomerDetailsAdapter extends TypeAdapter<CustomerDetails> {
   @override
-  final int typeId = 0;
+  final int typeId = 2;
 
   @override
   CustomerDetails read(BinaryReader reader) {

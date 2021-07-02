@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'OrdersPage4.dart';
-import 'CustomerDetails.dart';
+import '../models/CustomerDetails.dart';
 
 String orderno , orderamount3;
 class OrdersPage3 extends StatefulWidget {
